@@ -38,15 +38,22 @@ For each agent, check Test-Path ".claude/agents/<name>.md". If true use that fil
 
 6. Implement the changes, addressing all agent feedback.
 
-7. Run build, then lint, then tests using commands from CLAUDE.md.
-   If not defined, ask the human. Fix any failures before continuing.
+7a. Run build, then lint, then tests using commands from CLAUDE.md.
+    If not defined, ask the human. Fix any failures before continuing.
 
-8. Generate the diff (`git diff` against the base branch).
-   Run `code-reviewer` as a Task, passing:
+7b. Generate the diff (`git diff` against the base branch). Collect all test files touched or created.
+    Run `qa-gatekeeper` as a Task in implementation-review mode, passing:
+    - The approved plan
+    - The diff
+    - All test file contents (not paths)
+    - Any standards/playbooks loaded in step 2
+    If it returns BLOCKED, address the gaps and loop back to step 7a.
+
+8. Run `code-reviewer` as a Task, passing:
    - The approved plan
    - The diff
    - Any standards/playbooks loaded in step 2
-   If it returns BLOCKED or lists MUST-FIX items, address them and loop back to step 7.
+   If it returns BLOCKED or lists MUST-FIX items, address them and loop back to step 7a.
    Should-fix and nit items are reported to the human but do not block.
 
 9. Create a PR for the changes.
