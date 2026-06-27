@@ -3,8 +3,11 @@
 
 # EXCEPT THESE FILES AND FOLDERS
 !agents/
+!agents/**
 !commands/
+!commands/**
 !hooks/
+!hooks/**
 !CLAUDE.md
 !README.md
 !statusline-command.sh
