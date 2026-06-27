@@ -197,15 +197,86 @@ Only write this when the primary hypothesis is `LOG_CONFIRMED` or `MULTI_SOURCE`
 
 ---
 
-## Phase 6: Learning Capture
+## Phase 6: Fix Handoff — STOP
 
-After writing ROOT-CAUSE.md, route the key learnings using the routing taxonomy:
-- Confirmed bug pattern with diagnosis steps → `docs/features/{feature}/known-bugs.md` or equivalent
-- Service architecture fact discovered → `docs/services/{service}/notes.md`
-- Config field behaviour → feature or service docs
-- Generic investigation pattern → project `CLAUDE.md`
+Present the ROOT-CAUSE.md summary and offer to proceed to implementation:
 
-Run `/learn` for a guided learning capture session if the findings are substantial.
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ROOT CAUSE CONFIRMED — {bug description}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Classification: {CODE | CONFIG | DATA | DEPLOYMENT}
+Confidence:     {%} ({evidence level})
+Components:     {list}
+
+Root cause: {one sentence plain-language summary}
+
+Fix required: {code change / config change / data fix}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Options:
+  [F] Fix — hand off to Orchestrator to implement and raise a PR
+  [S] Stop — take the ROOT-CAUSE.md and implement separately
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Wait for human response before proceeding.
+
+- **Stop**: report artifact locations and exit.
+- **Fix**: proceed to Phase 7.
+
+---
+
+## Phase 7: Orchestrator Handoff
+
+Invoke the Orchestrator using the Agent tool with subagent type `orchestrator`.
+
+Pass the following in the prompt:
+
+```
+PRE-APPROVED PLAN — skip step 3 and the human approval STOP.
+
+This is a bug fix. The root cause has been confirmed and the human has accepted the fix
+direction. Treat the following as the approved plan and begin at step 4 (fan out
+plan-stage reviewers), proceeding through to PR.
+
+BUG: {original $ARGUMENTS}
+
+ROOT CAUSE:
+{full contents of ROOT-CAUSE.md}
+
+FIX PLAN:
+Implement the fix described in the ROOT-CAUSE.md Fix section.
+Add the regression test described in the ROOT-CAUSE.md Regression Test section.
+Verify using the query in the ROOT-CAUSE.md Verification section.
+```
+
+---
+
+## Phase 8: Fix Verification (automatic)
+
+Once the Orchestrator completes, run `/verify-fix` automatically — do not ask the human.
+
+Invoke it as a subagent or inline using the `verify-fix` command, passing:
+- The ROOT-CAUSE.md
+- The diff produced by the Orchestrator
+
+If the result is **VERIFIED**: proceed to Phase 9.
+
+If the result is **NEEDS WORK**: present the specific issues and STOP. The fix is incomplete
+or has introduced regressions — the human must decide whether to loop the Orchestrator
+again or address the gaps manually before the PR is merged.
+
+---
+
+## Phase 9: Retrospective (automatic)
+
+Once the fix is verified (or if stopping at Phase 6 without implementing), run
+`/retrospective` automatically — do not ask the human.
+
+Pass the bug ID or description as context so it can locate the investigation artifacts
+(ROOT-CAUSE.md, hypotheses.md, the diff, and the verify-fix verdict).
 
 ---
 

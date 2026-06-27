@@ -1,6 +1,6 @@
 ---
 name: plan-task
-description: Full planning-to-execution pipeline. Runs 3 parallel analysts, a 7-persona structured debate, and a binding decision. Presents the decision for acceptance, then hands off to the Orchestrator to implement. One command from problem to PR.
+description: Full planning-to-execution pipeline. Runs 3 parallel analysts, a 6-persona structured debate, and a binding decision. Presents the decision for acceptance, then hands off to the Orchestrator to implement. One command from problem to PR.
 argument-hint: "<task description or task file path>"
 model: opus
 ---
@@ -10,7 +10,7 @@ Input: `$ARGUMENTS` — a task description, a path to a task file, or the name/I
 
 ## What This Command Does
 
-Runs three parallel planning analysts → synthesises an initial implementation plan → runs a 7-persona structured debate (3 rounds) → Director writes a binding DECISION.md → plan is refined → you accept or re-discuss → Orchestrator implements, reviews, and raises a PR.
+Runs three parallel planning analysts → synthesises an initial implementation plan → runs a 6-persona structured debate (2 rounds) → Director writes a binding DECISION.md → plan is refined → you accept or re-discuss → Orchestrator implements, reviews, and raises a PR.
 
 ---
 
@@ -72,9 +72,9 @@ Save to `{task-slug}-implementation.md`.
 
 ---
 
-## Phase D: Discussion Round 1 — Initial Positions (7 agents simultaneously)
+## Phase D: Discussion Round 1 — Initial Positions (6 agents simultaneously)
 
-Launch SEVEN discussion personas in parallel, each receiving the full implementation plan
+Launch SIX discussion personas in parallel, each receiving the full implementation plan
 and all three analyst outputs:
 
 - **Guardian** (subagent: `guardian`) → Save to `{task-slug}-R1-guardian.md`
@@ -83,20 +83,19 @@ and all three analyst outputs:
 - **Architect** (subagent: `architect`) → Save to `{task-slug}-R1-architect.md`
 - **User Advocate** (subagent: `user-advocate`) → Save to `{task-slug}-R1-user-advocate.md`
 - **Historian** (subagent: `historian`) → Save to `{task-slug}-R1-historian.md`
-- **Director** (subagent: `director`) — Round 1 only: listening notes and clarifying questions, no verdict yet → Save to `{task-slug}-R1-director.md`
 
-**Launch all 7 simultaneously.**
+**Launch all 6 simultaneously.**
 
 ---
 
-## Phase E: Discussion Round 2 — Challenges (7 agents simultaneously)
+## Phase E: Discussion Round 2 — Challenges (6 agents simultaneously)
 
-Each agent receives the original plan AND all seven Round 1 positions. Task: produce a
+Each agent receives the original plan AND all six Round 1 positions. Task: produce a
 Round 2 response — challenge, support, or refine based on the full picture.
 
 Save to `{task-slug}-R2-{persona}.md` for each.
 
-**Launch all 7 simultaneously.**
+**Launch all 6 simultaneously.**
 
 ---
 
@@ -105,7 +104,7 @@ Save to `{task-slug}-R2-{persona}.md` for each.
 Execute the Director binding decision inline — do not spawn a subagent.
 
 1. Read `~/.claude/agents/director.md` for the DECISION.md schema
-2. All 14 discussion outputs (R1 + R2) are already in context
+2. All 12 discussion outputs (R1 + R2) are already in context
 3. Synthesise into a binding DECISION.md:
    - Verdict: `PROCEED` | `PROCEED WITH MODIFICATIONS` | `DEFER` | `REJECT`
    - Rationale referencing specific debate evidence
@@ -159,7 +158,7 @@ Options:
 
 Wait for human response before proceeding.
 
-- **Re-discuss**: note the concern, stop. The human can run `/discuss {task-slug}-implementation.md` to reopen the debate on a specific point.
+- **Re-discuss**: note the concern, stop. The human can run `/review-plans {task-slug}-implementation.md` for a quick adversarial check, or describe what to reconsider.
 - **Stop**: report artifact locations and exit.
 - **Accept**: proceed to Phase I.
 
@@ -174,7 +173,7 @@ Pass the following in the prompt:
 ```
 PRE-APPROVED PLAN — skip step 3 and the human approval STOP.
 
-The following plan has been through a full 7-persona debate and has been accepted by the
+The following plan has been through a full 6-persona debate and has been accepted by the
 human. Treat it as the output of your step 3. Begin at step 4 (fan out plan-stage reviewers)
 and proceed through to PR.
 

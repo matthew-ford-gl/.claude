@@ -1,6 +1,7 @@
 ---
 name: docs-updater
 description: Updates /docs folder files to match current code. Use after a feature lands, when docs are known to be stale, or for a full doc sweep. Invoke with a scope (changed files, a directory, or a feature area) or with no args for a full /docs scan.
+model: haiku
 tools: Read, Glob, Grep, Edit, Write, Bash
 ---
 

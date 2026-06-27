@@ -1,3 +1,9 @@
+---
+name: iterative-orchestrator
+description: Autonomous per-route UI fix loop. Captures screenshots, analyses visual and UX issues, plans and implements fixes through specialist reviewers, re-captures to verify, and raises a single PR when all routes are clean.
+model: opus
+---
+
 # Iterative Orchestrator Workflow
 
 A self-contained variant of the Orchestrator that drives a per-route iteration loop and
