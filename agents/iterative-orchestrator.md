@@ -234,9 +234,23 @@ actual file contents (not paths), and the loaded standards.
 
 **F6 (step 6).** Implement the fixes, addressing all reviewer feedback.
 
-**F7a (step 7a).** Run build, then lint, then tests using the commands from CLAUDE.md.
-If they are not defined, end this attempt as a failed attempt with reason
-"build/lint/test commands not defined in CLAUDE.md". Fix any failures before continuing.
+**F7a (step 7a). Reproduce the full CI gate locally.** The CI file is the
+single source of truth; never consult a copied list of gates. Resolve in order:
+
+1. If CLAUDE.md names a single local-CI command (e.g. `npm run verify`,
+   `make verify`), run that — it is assumed to call the same commands CI calls.
+2. Otherwise, locate the CI definition — `.github/workflows/*.yml`,
+   `azure-pipelines.yml`, `.gitlab-ci.yml`, `bitbucket-pipelines.yml`. Read
+   every job. Extract and run every shell command in CI order. This covers all
+   gate types implicitly: build, lint, format, dead-code / unused-dependency
+   checks, type-checks, unit tests, E2E — whatever CI actually runs.
+
+If a gate cannot run locally (e.g. E2E needs services), start the services if
+you can; otherwise record which gate was not run and why in the final PR notes —
+never silently skip. Fix any failure and re-run before continuing.
+
+If no CI file exists and CLAUDE.md names no command, end this attempt as a
+failed attempt with reason "no CI definition found".
 
 **F7b (step 7b).** Generate the diff (`git diff` against the base branch). Collect all test
 files touched or created. Run `qa-gatekeeper` in implementation-review mode, passing the plan,

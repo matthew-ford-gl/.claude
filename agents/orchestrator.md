@@ -124,8 +124,29 @@ For each agent, check Test-Path ".claude/agents/<name>.md". If true use that fil
 
 6. Implement the changes, addressing all reviewer feedback.
 
-7a. Run build, then lint, then tests using commands from CLAUDE.md.
-    If not defined, ask the human. Fix any failures before continuing.
+7a. **Reproduce the full CI gate locally — do not proceed with a red gate.**
+    The CI file is the single source of truth; never maintain or consult a
+    copied list of gates (it will drift). Resolve the gate in this order:
+
+    1. If CLAUDE.md names a single local-CI command (e.g. `npm run verify`,
+       `make verify`), run that. It is assumed to call the same commands CI
+       calls, so it is authoritative.
+    2. Otherwise, locate the CI definition itself — check in order:
+       `.github/workflows/*.yml`, `azure-pipelines.yml`, `.gitlab-ci.yml`,
+       `bitbucket-pipelines.yml`. Read every job. Extract every shell command
+       each job runs (including those in `steps[*].run`, `scripts`, Makefile
+       targets, etc.) and run them all locally in the same order CI would.
+       This explicitly covers every gate type: build, lint, format/style checks,
+       dead-code / unused-dependency checks (e.g. knip, depcheck, ts-prune,
+       `noUnusedLocals`), type-checks, unit tests, and E2E suites. None are
+       implicitly skipped because they weren't in a short list.
+    3. If a gate cannot run locally (e.g. E2E needs services), start the
+       required services if you can; otherwise record exactly which gate was
+       not run and why in the PR "Notes". Never silently skip a gate.
+    4. Any failure → fix it and re-run from the top of 7a. Do not advance to
+       step 7b or 8 until the full gate is green (or explicitly noted in 3).
+
+    If no CI file exists and CLAUDE.md names no command, ask the human.
 
 7b. Generate the diff (`git diff` against the base branch). Collect all test files touched
     or created. Run `qa-gatekeeper` as a Task in implementation-review mode, passing:
