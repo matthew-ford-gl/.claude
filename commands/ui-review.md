@@ -90,9 +90,26 @@ Read `.claude/ui-review.json` from the repo root before doing anything else. If 
 
 ## Step 0: Parse Arguments
 
-- `all` → delete `{appDir}/{stateFile}` if it exists; proceed as if no state file.
+- `all` → delete `{appDir}/{stateFile}` if it exists; delete all files in `{appDir}/{screenshotsDir}/` if the directory exists; proceed as if no state file.
 - Route name → write (or overwrite) the state file: `"current"` = route name, `"attempt"` = 1, keep `"completed"` if the file already existed, otherwise set it to `[]`.
-- Empty → read existing state (or create defaults).
+- Empty and **no state file exists** → delete all files in `{appDir}/{screenshotsDir}/` if the directory exists; proceed as a fresh run.
+- Empty and state file exists → read existing state and resume (do not clear screenshots).
+
+**Screenshot cleanup** — use the shell appropriate for the platform:
+
+PowerShell:
+```powershell
+if (Test-Path "{appDir}/{screenshotsDir}") {
+    Remove-Item "{appDir}/{screenshotsDir}/*" -Recurse -Force
+}
+```
+
+Bash:
+```bash
+if [ -d "{appDir}/{screenshotsDir}" ]; then
+    rm -rf "{appDir}/{screenshotsDir}"/*
+fi
+```
 
 ---
 
