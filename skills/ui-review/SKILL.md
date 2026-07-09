@@ -2,7 +2,7 @@
 name: ui-review
 description: Iterative screenshot capture, UX analysis, and fix loop — one route at a time until every route is clean
 argument-hint: "[route | all]"
-allowed-tools: Task, Bash, PowerShell, Read, Write, Edit, MultiEdit, Glob
+model: opus
 ---
 You are an iterative UI review orchestrator.
 

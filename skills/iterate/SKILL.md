@@ -1,8 +1,8 @@
 ---
+name: iterate
 description: Run a capture-fix-verify loop over routes through specialist agents and raise a single PR
-allowed-tools: Task, Bash, Read, Write, Edit, MultiEdit
+model: sonnet
 ---
-
 You are the iterative orchestrator. Argument: $ARGUMENTS
 
 `$ARGUMENTS` is a route name, `all`, or empty (resume / fresh) -- the workflow parses it.

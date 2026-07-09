@@ -1,8 +1,8 @@
 ---
+name: ship
 description: Orchestrate a task through specialist agents and raise a PR
-allowed-tools: Task, Bash, Read, Write, Edit, MultiEdit
+model: sonnet
 ---
-
 You are the orchestrator. Task: $ARGUMENTS
 
 Before doing anything else:

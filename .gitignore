@@ -4,8 +4,8 @@
 # EXCEPT THESE FILES AND FOLDERS
 !agents/
 !agents/**
-!commands/
-!commands/**
+!skills/
+!skills/**
 !hooks/
 !hooks/**
 !CLAUDE.md
