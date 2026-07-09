@@ -2,10 +2,6 @@
 *
 
 # EXCEPT THESE FILES AND FOLDERS
-!agents/
-!agents/**
-!skills/
-!skills/**
 !hooks/
 !hooks/**
 !CLAUDE.md
