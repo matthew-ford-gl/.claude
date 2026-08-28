@@ -2,7 +2,7 @@
 
 Personal Claude Code configuration: global instructions, agents, commands, and hooks.
 
-> **Note:** `settings.json` contains an `apiKeyHelper` with a credential — review before pushing to a public remote.
+> **Note:** `settings.json` is portable across Windows, WSL, macOS, and Linux. Hook commands resolve the config directory from `CLAUDE_CONFIG_DIR` or the current user's home directory.
 
 ## Structure
 
@@ -60,7 +60,9 @@ All agents respond with **APPROVED** or **BLOCKED** (reason required if blocked)
 git clone <remote-url> "$env:USERPROFILE\.claude"
 ```
 
-Claude Code loads from `~/.claude/` automatically — no additional configuration needed.
+Claude Code loads from `~/.claude/` automatically. Node.js and Python 3 must be available on `PATH` for the hooks and status line.
+
+The notification hooks are optional. They run `~/.agents/hooks/scripts/send-ai-alert.sh` when present and otherwise exit successfully. Set `AI_ALERT_SCRIPT` to use another location, which is useful when WSL needs to reference a script stored on the Windows filesystem.
 
 ### Per-repo overrides
 
