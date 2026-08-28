@@ -152,6 +152,26 @@ agent_name = agent_d.get('name', '')
 if agent_name:
     parts.append(f'{MAGENTA}agent:{agent_name}{RESET}')
 
+claude_dir = os.environ.get('CLAUDE_CONFIG_DIR') or os.path.join(os.path.expanduser('~'), '.claude')
+caveman_hook = os.path.join(claude_dir, 'hooks', 'caveman-statusline.ps1')
+caveman_flag = os.path.join(claude_dir, '.caveman-active')
+if os.path.isfile(caveman_hook) and os.path.isfile(caveman_flag) and not os.path.islink(caveman_flag):
+    try:
+        if os.path.getsize(caveman_flag) <= 64:
+            with open(caveman_flag, encoding='utf-8', errors='ignore') as f:
+                mode = ''.join(c for c in f.readline().strip().lower() if c.isascii() and (c.isalnum() or c == '-'))
+            valid_modes = {'off', 'lite', 'full', 'ultra', 'wenyan-lite', 'wenyan', 'wenyan-full', 'wenyan-ultra', 'commit', 'review', 'compress'}
+            if mode in valid_modes:
+                label = 'CAVEMAN' if mode == 'full' else f'CAVEMAN:{mode.upper()}'
+                suffix_path = os.path.join(claude_dir, '.caveman-statusline-suffix')
+                suffix = ''
+                if os.environ.get('CAVEMAN_STATUSLINE_SAVINGS') != '0' and os.path.isfile(suffix_path) and not os.path.islink(suffix_path) and os.path.getsize(suffix_path) <= 64:
+                    with open(suffix_path, encoding='utf-8', errors='ignore') as f:
+                        suffix = ''.join(c for c in f.read() if ord(c) >= 32).strip()
+                parts.append(f'\033[38;5;172m[{label}]' + (f' {suffix}' if suffix else '') + RESET)
+    except OSError:
+        pass
+
 print(SEP.join(parts))
 
 # Last user message from transcript
