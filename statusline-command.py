@@ -6,6 +6,11 @@ import subprocess
 import time
 
 try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+
+try:
     data = json.load(sys.stdin)
 except Exception:
     data = {}
