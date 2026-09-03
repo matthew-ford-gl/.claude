@@ -11,11 +11,17 @@ const action = process.argv[1];
 if (action === 'alert') {
   const script = process.env.AI_ALERT_SCRIPT || path.join(os.homedir(), '.agents', 'hooks', 'scripts', 'send-ai-alert.sh');
   if (!fs.existsSync(script)) process.exit(0);
-  const result = spawnSync('bash', ['--noprofile', '--norc', '-s'], {
-    input: fs.readFileSync(script, 'utf8').replace(/\r/g, ''),
+  const tempScript = path.join(os.tmpdir(), `claude-alert-${process.pid}.sh`);
+  fs.writeFileSync(tempScript, fs.readFileSync(script, 'utf8').replace(/\r/g, ''));
+  const bashPath = process.platform === 'win32'
+    ? tempScript.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replace(/\\/g, '/')
+    : tempScript;
+  const result = spawnSync('bash', ['--noprofile', '--norc', bashPath], {
+    input: fs.readFileSync(0),
     stdio: ['pipe', 'inherit', 'inherit'],
     timeout: 15000,
   });
+  fs.unlinkSync(tempScript);
   process.exit(result.status || 0);
 }
 
