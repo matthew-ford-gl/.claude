@@ -13,14 +13,30 @@ if (action === 'alert') {
   if (!fs.existsSync(script)) process.exit(0);
   const tempScript = path.join(os.tmpdir(), `claude-alert-${process.pid}.sh`);
   fs.writeFileSync(tempScript, fs.readFileSync(script, 'utf8').replace(/\r/g, ''));
-  const bashPath = process.platform === 'win32'
-    ? tempScript.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replace(/\\/g, '/')
-    : tempScript;
-  const result = spawnSync('bash', ['--noprofile', '--norc', bashPath], {
-    input: fs.readFileSync(0),
-    stdio: ['pipe', 'inherit', 'inherit'],
+  const input = fs.readFileSync(0);
+
+  const runBash = (bashPath) => spawnSync('bash', ['--noprofile', '--norc', bashPath], {
+    input,
+    stdio: ['pipe', 'pipe', 'pipe'],
     timeout: 15000,
   });
+
+  let result;
+  if (process.platform === 'win32') {
+    // Git Bash mounts drives at /c/..., not the WSL /mnt/c/... convention — try that first.
+    const gitBashPath = tempScript.replace(/^([A-Za-z]):/, (_, drive) => `/${drive.toLowerCase()}`).replace(/\\/g, '/');
+    result = runBash(gitBashPath);
+    const pathLookupFailed = result.error || /no such file or directory/i.test(String(result.stderr || ''));
+    if (pathLookupFailed) {
+      const wslPath = tempScript.replace(/^([A-Za-z]):/, (_, drive) => `/mnt/${drive.toLowerCase()}`).replace(/\\/g, '/');
+      result = runBash(wslPath);
+    }
+  } else {
+    result = runBash(tempScript);
+  }
+
+  if (result.stdout) process.stdout.write(result.stdout);
+  if (result.stderr) process.stderr.write(result.stderr);
   fs.unlinkSync(tempScript);
   process.exit(result.status || 0);
 }
